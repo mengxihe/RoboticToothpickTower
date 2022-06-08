@@ -1,0 +1,81 @@
+&ACCESS RVP
+&REL 4
+DEF PROCESSLOOP( )
+
+DECL E6AXIS HOME
+DECL E6POS PPICKUP
+DECL E6POS PICKUP
+
+MyBool = TRUE
+
+BAS(#INITMOV,0)
+BAS(#VEL_CP, 0.4)
+BAS(#VEL_PTP, 100)
+BAS (#TOOL, 6)
+MyPos = $POS_ACT ;{E6POS: X 0, Y 0, Z 0, A 0, B 0, C 0}
+HOME = {E6AXIS: A1 0, A2 -90, A3 90, A4 90, A5 0, A6 0, E1 0}
+PPICKUP = {E6POS: X 1623.53, Y -719.37, Z 1106.73, A -90, B 0, C 90}
+PICKUP = {E6POS: X 1623.53, Y -719.37, Z 875.28374, A -90, B 0, C 90}
+MSG = "I"
+STATE = "3"
+AVAILABLE = FALSE
+
+PTP HOME
+PTP PPICKUP
+
+WHILE MyBool
+   
+   WAIT FOR AVAILABLE
+   AVAILABLE = FALSE
+
+   SWITCH MSG
+   CASE "P"
+     ;Go Down and pick up
+     PTP PPICKUP
+     PTP PICKUP
+     STATE = "0"
+     ;WAIT SEC 0
+   CASE "U"
+     STATE = "2" ; At the pick up point
+   CASE "Z"
+     PTP PPICKUP
+     STATE = "1"
+   CASE "D"
+     ;PTP PPICKUP
+     PTP MyPos   
+     STATE = "1" ;Goto Target Point and Drop Off
+     ;WAIT SEC 1
+   CASE "T"
+     STATE = "3" ;At Target Point
+   CASE "O"
+     STATE = "0" ;Open Idle State
+     ;WAIT SEC 0
+   CASE "C" ;Closing Idle State
+     STATE = "1"
+     ;PTP MyPos
+     ;PTP PPICKUP
+     ;WAIT SEC 10
+     ;PTP PPICKUP
+   ;Doing the Curing curve motion
+   CASE "Y" ;Presurising
+     STATE = "4"
+   CASE "A" ;Open Nozzel
+      STATE = "5"
+   CASE "B" ;Close Nozzel
+      STATE = "8"
+   CASE "Q" ;Get out of the program
+     MyBool = False
+     STATE = "7"
+   DEFAULT
+     ; idle
+ ENDSWITCH
+ 
+ MSG = "I"
+ ;STATE = "O"
+
+   
+ENDWHILE
+
+PTP HOME
+
+END
