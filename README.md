@@ -14,3 +14,6 @@ Alan Eskildsen
 
 ### buildingProcess
 ![](imgs/Process.gif)
+
+### imageAnalysis
+![](imgs/opencv_frame_32.png)
